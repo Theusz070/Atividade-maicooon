@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendas da Cantina Escolar - Painel do Gerente</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-12">
+
+  <!-- Header -->
+  <header class="bg-indigo-600 text-white shadow-lg mb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+          <i data-lucide="store" class="w-8 h-8"></i>
+          Vendas da Cantina Escolar
+        </h1>
+        <p class="text-indigo-100 text-sm sm:text-base mt-1">Painel do Gerente • Análise Estratégica de Vendas</p>
+      </div>
+      <div class="bg-indigo-700/60 border border-indigo-400/30 rounded-lg p-3 text-xs sm:text-sm max-w-md">
+        <span class="font-semibold text-indigo-200 block mb-1">Pergunta Principal:</span>
+        <p class="text-white italic">"Como aumentar o faturamento semanal?"</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+    <!-- Control / Filter Bar -->
+    <section class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-700">Filtros e Controles</h2>
+        <p class="text-xs text-slate-500">Filtre os dados exibidos nos KPIs, gráficos e tabela</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <label for="categoryFilter" class="text-sm font-medium text-slate-600">Categoria:</label>
+        <select id="categoryFilter" class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5 outline-none w-full sm:w-auto">
+          <option value="todos">Todas as Categorias</option>
+          <option value="Salgados">Salgados</option>
+          <option value="Bebidas">Bebidas</option>
+          <option value="Doces">Doces</option>
+          <option value="Lanches">Lanches</option>
+        </select>
+        <button id="resetBtn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Limpar
+        </button>
+      </div>
+    </section>
+
+    <!-- KPI Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Card 1 -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Faturamento Total</p>
+          <h3 id="kpiFaturamento" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">R$ 0,00</h3>
+          <p class="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Vendas acumuladas
+          </p>
+        </div>
+        <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl">
+          <i data-lucide="dollar-sign" class="w-8 h-8"></i>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Itens Vendidos</p>
+          <h3 id="kpiItens" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">0</h3>
+          <p class="text-xs text-indigo-600 font-medium mt-1 flex items-center gap-1">
+            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Total de unidades
+          </p>
+        </div>
+        <div class="p-3 bg-indigo-100 text-indigo-600 rounded-xl">
+          <i data-lucide="shopping-cart" class="w-8 h-8"></i>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Ticket Médio por Aluno</p>
+          <h3 id="kpiTicket" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">R$ 0,00</h3>
+          <p class="text-xs text-amber-600 font-medium mt-1 flex items-center gap-1">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i> Média por transação
+          </p>
+        </div>
+        <div class="p-3 bg-amber-100 text-amber-600 rounded-xl">
+          <i data-lucide="receipt" class="w-8 h-8"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Line Chart -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div class="mb-4">
+          <h3 class="text-base font-bold text-slate-800">Como as vendas variam ao longo dos dias?</h3>
+          <p class="text-xs text-slate-500">Faturamento diário acumulado de segunda a sexta-feira</p>
+        </div>
+        <div class="relative w-full h-72">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div class="mb-4">
+          <h3 class="text-base font-bold text-slate-800">Quais os produtos mais vendidos?</h3>
+          <p class="text-xs text-slate-500">Volume total de unidades vendidas por item</p>
+        </div>
+        <div class="relative w-full h-72">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Table Section -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+        <div>
+          <h3 class="text-lg font-bold text-slate-800">Dados Fictícios de Vendas</h3>
+          <p class="text-xs text-slate-500">Registro detalhado de transações da semana</p>
+        </div>
+        <span id="rowCount" class="bg-slate-100 text-slate-600 text-xs font-semibold px-2.5 py-1 rounded-full">0 registros</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500 border-b border-slate-200">
+            <tr>
+              <th class="px-6 py-3">Data</th>
+              <th class="px-6 py-3">Produto</th>
+              <th class="px-6 py-3">Categoria</th>
+              <th class="px-6 py-3 text-center">Quantidade</th>
+              <th class="px-6 py-3 text-right">Preço Unitário</th>
+              <th class="px-6 py-3 text-right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-200">
+            <!-- Populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Dados Fictícios de Vendas
+    const vendasData = [
+      { id: 1, data: "2026-10-19 (Seg)", produto: "Salgado Assado", categoria: "Salgados", quantidade: 35, precoUnitario: 6.00 },
+      { id: 2, data: "2026-10-19 (Seg)", produto: "Suco Natural", categoria: "Bebidas", quantidade: 25, precoUnitario: 5.00 },
+      { id: 3, data: "2026-10-19 (Seg)", produto: "Brigadeiro", categoria: "Doces", quantidade: 20, precoUnitario: 3.00 },
+      { id: 4, data: "2026-10-20 (Ter)", produto: "Salgado Assado", categoria: "Salgados", quantidade: 20, precoUnitario: 6.00 },
+      { id: 5, data: "2026-10-20 (Ter)", produto: "Refrigerante Lata", categoria: "Bebidas", quantidade: 15, precoUnitario: 5.50 },
+      { id: 6, data: "2026-10-20 (Ter)", produto: "Lanche Natural", categoria: "Lanches", quantidade: 12, precoUnitario: 8.50 },
+      { id: 7, data: "2026-10-21 (Qua)", produto: "Salgado Assado", categoria: "Salgados", quantidade: 45, precoUnitario: 6.00 },
+      { id: 8, data: "2026-10-21 (Qua)", produto: "Suco Natural", categoria: "Bebidas", quantidade: 30, precoUnitario: 5.00 },
+      { id: 9, data: "2026-10-21 (Qua)", produto: "Brigadeiro", categoria: "Doces", quantidade: 25, precoUnitario: 3.00 },
+      { id: 10, data: "2026-10-22 (Qui)", produto: "Lanche Natural", categoria: "Lanches", quantidade: 22, precoUnitario: 8.50 },
+      { id: 11, data: "2026-10-22 (Qui)", produto: "Refrigerante Lata", categoria: "Bebidas", quantidade: 28, precoUnitario: 5.50 },
+      { id: 12, data: "2026-10-23 (Sex)", produto: "Salgado Assado", categoria: "Salgados", quantidade: 50, precoUnitario: 6.00 },
+      { id: 13, data: "2026-10-23 (Sex)", produto: "Suco Natural", categoria: "Bebidas", quantidade: 40, precoUnitario: 5.00 },
+      { id: 14, data: "2026-10-23 (Sex)", produto: "Brigadeiro", categoria: "Doces", quantidade: 35, precoUnitario: 3.00 }
+    ];
+
+    // Instâncias dos Gráficos
+    let lineChartInstance = null;
+    let barChartInstance = null;
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initDashboard();
+
+      document.getElementById('categoryFilter').addEventListener('change', updateDashboard);
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        document.getElementById('categoryFilter').value = 'todos';
+        updateDashboard();
+      });
+    });
+
+    function initDashboard() {
+      renderCharts();
+      updateDashboard();
+    }
+
+    function getFilteredData() {
+      const selectedCategory = document.getElementById('categoryFilter').value;
+      if (selectedCategory === 'todos') return vendasData;
+      return vendasData.filter(item => item.categoria === selectedCategory);
+    }
+
+    function updateDashboard() {
+      const filtered = getFilteredData();
+      
+      // Atualizar KPIs
+      const faturamentoTotal = filtered.reduce((acc, curr) => acc + (curr.quantidade * curr.precoUnitario), 0);
+      const totalItens = filtered.reduce((acc, curr) => acc + curr.quantidade, 0);
+      // Estimativa de transações para calcular o Ticket Médio
+      const totalTransacoes = filtered.length || 1; 
+      const ticketMedio = faturamentoTotal / totalTransacoes;
+
+      document.getElementById('kpiFaturamento').textContent = faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      document.getElementById('kpiItens').textContent = totalItens.toLocaleString('pt-BR') + " un";
+      document.getElementById('kpiTicket').textContent = ticketMedio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+      // Atualizar Tabela
+      renderTable(filtered);
+
+      // Atualizar Gráficos
+      updateCharts(filtered);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('tableBody');
+      const rowCount = document.getElementById('rowCount');
+      tbody.innerHTML = '';
+      rowCount.textContent = `${data.length} registro(s)`;
+
+      data.forEach(item => {
+        const subtotal = item.quantidade * item.precoUnitario;
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-50/80 transition-colors";
+        row.innerHTML = `
+          <td class="px-6 py-3.5 font-medium text-slate-800">${item.data}</td>
+          <td class="px-6 py-3.5 font-semibold text-slate-700">${item.produto}</td>
+          <td class="px-6 py-3.5">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
+              ${item.categoria}
+            </span>
+          </td>
+          <td class="px-6 py-3.5 text-center font-medium">${item.quantidade}</td>
+          <td class="px-6 py-3.5 text-right">${item.precoUnitario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+          <td class="px-6 py-3.5 text-right font-bold text-slate-800">${subtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderCharts() {
+      // Line Chart setup
+      const ctxLine = document.getElementById('lineChart').getContext('2d');
+      lineChartInstance = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'],
+          datasets: [{
+            label: 'Faturamento (R$)',
+            data: [],
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.3,
+            pointBackgroundColor: '#4f46e5',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { callback: value => 'R$ ' + value } }
+          }
+        }
+      });
+
+      // Bar Chart setup
+      const ctxBar = document.getElementById('barChart').getContext('2d');
+      barChartInstance = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Unidades Vendidas',
+            data: [],
+            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    function updateCharts(data) {
+      // Processamento para Gráfico de Linhas (Faturamento por Dia)
+      const diasMap = { "2026-10-19 (Seg)": 0, "2026-10-20 (Ter)": 0, "2026-10-21 (Qua)": 0, "2026-10-22 (Qui)": 0, "2026-10-23 (Sex)": 0 };
+      data.forEach(item => {
+        if (diasMap[item.data] !== undefined) {
+          diasMap[item.data] += (item.quantidade * item.precoUnitario);
+        }
+      });
+
+      lineChartInstance.data.datasets[0].data = Object.values(diasMap);
+      lineChartInstance.update();
+
+      // Processamento para Gráfico de Barras (Produtos mais vendidos)
+      const produtosMap = {};
+      data.forEach(item => {
+        produtosMap[item.produto] = (produtosMap[item.produto] || 0) + item.quantidade;
+      });
+
+      barChartInstance.data.labels = Object.keys(produtosMap);
+      barChartInstance.data.datasets[0].data = Object.values(produtosMap);
+      barChartInstance.update();
+    }
+  </script>
+</body>
+</html>
